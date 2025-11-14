@@ -37,5 +37,17 @@ namespace AspNetCoreSignalrExample.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
             _logger.LogInformation("Client {ConnectionId} left group: {GroupName}", Context.ConnectionId, groupName);
         }
+
+        public async Task PingFromFrontend(string message)
+        {
+            var pingMessage = new
+            {
+                timestamp = DateTime.UtcNow.ToString("o"),
+                message = message
+            };
+
+            await Clients.All.SendAsync("ReceivePing", pingMessage);
+            _logger.LogInformation("Ping sent from {ConnectionId}: {Message}", Context.ConnectionId, message);
+        }
     }
 }

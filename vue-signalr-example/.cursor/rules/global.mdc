@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Planboards
 
-This project delivers a Digital Planning Board application that replaces manual whiteboards in correctional facilities with large touch-screen dashboards used by the personnel. The system provides staff with an instant, privacy-safe overview of rooms, clients, objects, and schedules, while reusing core functionality from the existing iSmart Touch 3 backend.
+This is only an example for a junior person to see how SignalR works. 
 
 ## Standards
 
