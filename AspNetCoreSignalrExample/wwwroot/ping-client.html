@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SignalR Ping Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+     max-width: 800px;
+margin: 50px auto;
+ padding: 20px;
+ }
+  #status {
+        padding: 10px;
+       margin: 10px 0;
+    border-radius: 5px;
+     font-weight: bold;
+        }
+  .connected {
+   background-color: #d4edda;
+            color: #155724;
+}
+        .disconnected {
+            background-color: #f8d7da;
+      color: #721c24;
+        }
+        #pings {
+            margin-top: 20px;
+            max-height: 400px;
+     overflow-y: auto;
+          border: 1px solid #ddd;
+            padding: 10px;
+        }
+        .ping-item {
+          padding: 5px;
+            margin: 5px 0;
+            background-color: #e9ecef;
+         border-radius: 3px;
+  }
+        button {
+  padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>SignalR Ping Example</h1>
+    
+    <div id="status" class="disconnected">Disconnected</div>
+    
+    <div>
+ <button id="connectBtn" onclick="connect()">Connect</button>
+        <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+        <button onclick="clearPings()">Clear Pings</button>
+    </div>
+    
+    <h2>Received Pings:</h2>
+    <div id="pings"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        let connection = null;
+        let pingCount = 0;
+
+        async function connect() {
+  connection = new signalR.HubConnectionBuilder()
+        .withUrl("/pingHub")
+          .withAutomaticReconnect()
+           .configureLogging(signalR.LogLevel.Information)
+                .build();
+
+  connection.on("ReceivePing", (data) => {
+          pingCount++;
+       const pingsDiv = document.getElementById("pings");
+      const pingItem = document.createElement("div");
+                pingItem.className = "ping-item";
+            pingItem.innerHTML = `
+ <strong>Ping #${pingCount}</strong><br>
+    Time: ${new Date(data.timestamp).toLocaleTimeString()}<br>
+          Message: ${data.message}
+      `;
+   pingsDiv.insertBefore(pingItem, pingsDiv.firstChild);
+            });
+
+  connection.onclose(() => {
+updateStatus(false);
+    });
+
+ connection.onreconnecting(() => {
+    document.getElementById("status").textContent = "Reconnecting...";
+        document.getElementById("status").className = "disconnected";
+            });
+
+            connection.onreconnected(() => {
+       updateStatus(true);
+    });
+
+            try {
+      await connection.start();
+       updateStatus(true);
+          console.log("Connected to PingHub");
+          } catch (err) {
+                console.error("Connection error:", err);
+                alert("Failed to connect: " + err.message);
+            }
+        }
+
+ async function disconnect() {
+            if (connection) {
+         await connection.stop();
+      updateStatus(false);
+  console.log("Disconnected from PingHub");
+     }
+        }
+
+   function updateStatus(isConnected) {
+  const statusDiv = document.getElementById("status");
+            const connectBtn = document.getElementById("connectBtn");
+       const disconnectBtn = document.getElementById("disconnectBtn");
+
+      if (isConnected) {
+        statusDiv.textContent = "Connected";
+     statusDiv.className = "connected";
+            connectBtn.disabled = true;
+   disconnectBtn.disabled = false;
+          } else {
+                statusDiv.textContent = "Disconnected";
+    statusDiv.className = "disconnected";
+        connectBtn.disabled = false;
+        disconnectBtn.disabled = true;
+       }
+        }
+
+     function clearPings() {
+            document.getElementById("pings").innerHTML = "";
+   pingCount = 0;
+        }
+
+        // Auto-connect on page load
+        window.addEventListener("load", () => {
+       connect();
+        });
+    </script>
+</body>
+</html>

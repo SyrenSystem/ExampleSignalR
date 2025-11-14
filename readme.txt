@@ -1,0 +1,1 @@
+Go to https://localhost:7295/ping-client.html for the .NET application
