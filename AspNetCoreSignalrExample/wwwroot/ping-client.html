@@ -70,17 +70,21 @@ margin: 50px auto;
                 .build();
 
   connection.on("ReceivePing", (data) => {
-          pingCount++;
-       const pingsDiv = document.getElementById("pings");
-      const pingItem = document.createElement("div");
-                pingItem.className = "ping-item";
-            pingItem.innerHTML = `
- <strong>Ping #${pingCount}</strong><br>
-    Time: ${new Date(data.timestamp).toLocaleTimeString()}<br>
-          Message: ${data.message}
-      `;
-   pingsDiv.insertBefore(pingItem, pingsDiv.firstChild);
-            });
+    pingCount++;
+    const pingsDiv = document.getElementById("pings");
+    const pingItem = document.createElement("div");
+    const pingTitle = document.createElement("strong");
+    pingItem.className = "ping-item";
+    pingTitle.textContent = `Ping #${pingCount}`;
+    pingItem.append(
+      pingTitle,
+      document.createElement("br"),
+      `Time: ${new Date(data.timestamp).toLocaleTimeString()}`,
+      document.createElement("br"),
+      `Message: ${data.message}`
+    );
+    pingsDiv.insertBefore(pingItem, pingsDiv.firstChild);
+  });
 
   connection.onclose(() => {
 updateStatus(false);
